@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="express_delivery_1700">Express Delivery (+1700$)</string>
+    <string name="pay">Pay</string>
+    <string name="bmw_m3_260000">BMW M3 - $260000</string>
+    <string name="mercedes_cla_220000">Mercedes CLA - $220000</string>
+</resources>
