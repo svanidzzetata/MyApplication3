@@ -1,59 +1,64 @@
 package com.example.myapplication
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.example.myapplication.databinding.FragmentOrderBinding
 
-class OrderFragment : Fragment() {
-
+class OrderFragment : Fragment(R.layout.fragment_order) {
+    private lateinit var binding: FragmentOrderBinding
     private var basePrice: Double = 0.0
-    private var finalPrice: Double = 0.0
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentOrderBinding.bind(view)
 
-        val view = inflater.inflate(R.layout.fragment_order, container, false)
+        // მონაცემების მიღება და UI-ს შევსება
+        val car = arguments?.getSerializable("car_data") as? Car
 
-        val nameText = view.findViewById<TextView>(R.id.productName)
-        val priceText = view.findViewById<TextView>(R.id.finalPrice)
-        val expressCheck = view.findViewById<CheckBox>(R.id.expressCheck)
-        val payBtn = view.findViewById<Button>(R.id.payBtn)
+        car?.let {
+            basePrice = it.price
+            binding.tvItemName.text = it.name
+            binding.tvItemPrice.text = "$${String.format("%,.0f", it.price)}"
 
-        // მიღება bundle-დან
-        val bundle = arguments
-        val name = bundle?.getString("name")
-        basePrice = bundle?.getDouble("price") ?: 0.0
-
-        nameText.text = name
-
-        // 5% ფასდაკლება
-        finalPrice = basePrice * 0.95
-        priceText.text = "Final: $$finalPrice"
-
-        // Express checkbox listener
-        expressCheck.setOnCheckedChangeListener { _, isChecked ->
-            priceText.text = if (isChecked) {
-                "Final: $${finalPrice + 1700}"
-            } else {
-                "Final: $$finalPrice"
+            // სურათის შეცვლა არჩეული მანქანის მიხედვით
+            val imageRes = when(it.name) {
+                "BMW M3" -> R.drawable.img_bmw
+                "Ferrari 488" -> R.drawable.img_ferrari
+                "Mercedes CLA" -> R.drawable.img_mercedes
+                "Porsche 911" -> R.drawable.img_porsche
+                else -> R.drawable.img_bmw
             }
+            binding.ivCarThumb.setImageResource(imageRes)
         }
 
-        // Pay button listener
-        payBtn.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.frameLayout, SuccessFragment())
-                ?.addToBackStack(null)
-                ?.commit()
+        // გამოთვლის გამოძახება თავიდანვე
+        updateUI()
+
+        // როცა მიწოდებას ვცვლით (Standard/Express)
+        binding.radioGroupShipping.setOnCheckedChangeListener { _, _ ->
+            updateUI()
         }
 
-        return view
+        // გადახდის ღილაკი
+        binding.btnPay.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, SuccessFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun updateUI() {
+        // 5% ფასდაკლების გამოთვლა
+        val discount = basePrice * 0.05
+        val priceAfterDiscount = basePrice - discount
+
+        // მიწოდების საფასური
+        val shippingExtra = if (binding.rbExpress.isChecked) 1700.0 else 0.0
+        val total = priceAfterDiscount + shippingExtra
+
+        // საბოლოო ფასის გამოტანა ფორმატირებით: Total $264,400
+        binding.tvTotalAmount.text = "Total $${String.format("%,.0f", total)}"
     }
 }

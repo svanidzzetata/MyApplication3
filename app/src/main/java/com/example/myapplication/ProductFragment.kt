@@ -1,45 +1,48 @@
 package com.example.myapplication
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
+import androidx.fragment.app.Fragment
+import com.example.myapplication.databinding.FragmentProductBinding
 
-class ProductFragment : Fragment() {
+class ProductFragment : Fragment(R.layout.fragment_product) {
+    private lateinit var binding: FragmentProductBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentProductBinding.bind(view)
 
-        val view = inflater.inflate(R.layout.fragment_product, container, false)
-
-        val bmwBtn = view.findViewById<Button>(R.id.bmwBtn)
-        val mercBtn = view.findViewById<Button>(R.id.mercBtn)
-
-        bmwBtn.setOnClickListener {
-            openOrder("BMW M3", 260000.0)
+        // BMW არჩევა (btnBmw-ს ნაცვლად ვიყენებთ cardBmw-ს)
+        binding.cardBmw.setOnClickListener {
+            sendData(Car("BMW M3", 38000.0))
         }
 
-        mercBtn.setOnClickListener {
-            openOrder("Mercedes CLA", 220000.0)
+        // Ferrari არჩევა
+        binding.cardFerrari.setOnClickListener {
+            sendData(Car("Ferrari 488", 260000.0))
         }
 
-        return view
+        // Mercedes არჩევა
+        binding.cardMercedes.setOnClickListener {
+            sendData(Car("Mercedes CLA", 46400.0))
+        }
+
+        // Porsche არჩევა
+        binding.cardPorsche.setOnClickListener {
+            sendData(Car("Porsche 911", 189000.0))
+        }
     }
 
-    private fun openOrder(name: String, price: Double) {
-        val fragment = OrderFragment()
+    private fun sendData(car: Car) {
         val bundle = Bundle()
-        bundle.putString("name", name)
-        bundle.putDouble("price", price)
-        fragment.arguments = bundle
+        bundle.putSerializable("car_data", car)
 
-        activity?.supportFragmentManager?.beginTransaction()
-            ?.replace(R.id.frameLayout, fragment)
-            ?.addToBackStack(null)
-            ?.commit()
+        val orderFragment = OrderFragment()
+        orderFragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, orderFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

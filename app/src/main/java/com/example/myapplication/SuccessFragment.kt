@@ -1,17 +1,19 @@
 package com.example.myapplication
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.example.myapplication.databinding.FragmentSuccessBinding
 
-class SuccessFragment : Fragment() {
+class SuccessFragment : Fragment(R.layout.fragment_success) {
+    private lateinit var binding: FragmentSuccessBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_success, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentSuccessBinding.bind(view)
+
+        binding.btnGoHome.setOnClickListener {
+            parentFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        }
     }
 }
